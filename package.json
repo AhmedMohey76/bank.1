@@ -16,6 +16,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@types/bcrypt": "^6.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
@@ -24,5 +25,14 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.0",
     "typescript-eslint": "^8.53.0"
+  },
+  "dependencies": {
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/typeorm": "^11.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "bcrypt": "^6.0.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.17.1",
+    "typeorm": "^0.3.28"
   }
 }
