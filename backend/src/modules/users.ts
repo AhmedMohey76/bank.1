@@ -1,14 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  CreateDateColumn,
-} from 'typeorm';
-import { Account } from './accounts';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { OTP } from './otp';
+import { Account } from './user-account';
 
-@Entity() // This tells NestJS this class is a database table
+@Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,21 +13,18 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ unique: true })
+  phoneNumber: string;
+
   @Column()
   passwordHash: string;
 
-  @Column({ nullable: true })
-  phoneNumber: string;
-
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   currentRefreshToken: string | null;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @OneToMany(() => Account, (account) => account.user)
-  accounts: Account[];
 
   @OneToMany(() => OTP, (otp) => otp.user)
   otps: OTP[];
+
+  @OneToMany(() => Account, (account) => account.user)
+  accounts: Account[];
 }
