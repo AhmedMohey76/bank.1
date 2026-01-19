@@ -15,15 +15,12 @@ export class Transaction {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  // Link to the Sender's Account
   @ManyToOne(() => Account, { nullable: true })
   fromAccount: Account;
 
-  // Link to the Receiver's Account
   @ManyToOne(() => Account, { nullable: true })
   toAccount: Account;
 
-  // 'TRANSFER', 'DEPOSIT', 'WITHDRAWAL'
   @Column()
   type: string;
 

@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 
 export class GetTransactionsDto {
   @IsOptional()
-  @Type(() => Number) // Convert string "1" to number 1
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   page?: number = 1;
@@ -20,5 +20,5 @@ export class GetTransactionsDto {
 
   @IsOptional()
   @IsString()
-  accountId?: string; // Optional: Filter by specific account
+  accountId?: string;
 }

@@ -13,7 +13,6 @@ import { TransactionService } from '../service/transaction-service';
 import { AuthGuard } from '../guards/auth-guard';
 import { GetTransactionsDto } from '../dto/get-transaction';
 
-// 👇 1. Define what the Request looks like (The Fix)
 interface RequestWithUser {
   user: {
     sub: number;
@@ -56,7 +55,6 @@ export class TransactionController {
     @Request() req: RequestWithUser, // 👈 2. Apply the interface here!
     @Query() query: GetTransactionsDto,
   ) {
-    // Now TypeScript knows that 'req.user.sub' is definitely a number
     return await this.transactionService.getHistory(req.user.sub, query);
   }
 }

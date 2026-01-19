@@ -23,7 +23,7 @@ export class TransactionService {
     amount: number,
   ) {
     return await this.dataSource.transaction(async (manager) => {
-      // A. 🛡️ IDEMPOTENCY CHECK (Prevents double submission)
+      // A.  IDEMPOTENCY CHECK
       const existingKey = await manager.findOne(IdempotencyLog, {
         where: { key: idempotencyKey },
         lock: { mode: 'pessimistic_write' }, // Lock this key so no one else can write it simultaneously
@@ -36,8 +36,7 @@ export class TransactionService {
         };
       }
 
-      // B. 🔍 VALIDATION (Sender & Receiver)
-      // Lock the SENDER to prevent negative balance race conditions
+      // B.  VALIDATION (Sender & Receiver)
       const sender = await manager.findOne(Account, {
         where: { id: fromAccountId },
         lock: { mode: 'pessimistic_write' },
@@ -53,15 +52,14 @@ export class TransactionService {
 
       if (!receiver) throw new NotFoundException('Receiver account not found');
 
-      // C. 💸 EXECUTE TRANSFER (Update Balances)
-      // Use Number() to ensure we don't accidentally concat strings
+      // C. EXECUTE TRANSFER
       sender.balance = Number(sender.balance) - Number(amount);
       receiver.balance = Number(receiver.balance) + Number(amount);
 
       await manager.save(sender);
       await manager.save(receiver);
 
-      // D. 📝 CREATE RECEIPT (Transaction Record)
+      // D.  CREATE RECEIPT
       const record = manager.create(Transaction, {
         amount: amount,
         fromAccount: sender,
@@ -71,7 +69,7 @@ export class TransactionService {
 
       const savedTransaction = await manager.save(record);
 
-      // E. 🔒 SAVE IDEMPOTENCY KEY
+      // E.  SAVE IDEMPOTENCY KEY
       const keyLog = manager.create(IdempotencyLog, {
         key: idempotencyKey,
         transactionId: savedTransaction.id,
@@ -93,12 +91,10 @@ export class TransactionService {
     const skip = (page - 1) * limit;
 
     // A. Security: Find all accounts belonging to this user
-    // We only show transactions where the user owns AT LEAST one of the accounts involved.
     const userAccounts = await this.dataSource.getRepository(Account).find({
       where: { user: { id: userId } },
     });
 
-    // If user has no accounts, they have no transactions
     if (userAccounts.length === 0) {
       return { data: [], count: 0, page, limit, totalPages: 0 };
     }
@@ -112,7 +108,6 @@ export class TransactionService {
       .leftJoinAndSelect('transaction.fromAccount', 'fromAccount')
       .leftJoinAndSelect('transaction.toAccount', 'toAccount')
 
-      // Complex Logic: "Show me transfers where I am the Sender OR I am the Receiver"
       .where(
         new Brackets((qb) => {
           qb.where('fromAccount.id IN (:...ids)', {
@@ -121,13 +116,12 @@ export class TransactionService {
         }),
       );
 
-    // C. Apply Filters (Optional)
+    // C. Apply Filters
     if (type) {
       qb.andWhere('transaction.type = :type', { type });
     }
 
     if (accountId) {
-      // Allow filtering by a specific account number (e.g. "Show only my Savings history")
       qb.andWhere(
         new Brackets((qb) => {
           qb.where('fromAccount.accountNumber = :accNum', {

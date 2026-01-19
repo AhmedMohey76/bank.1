@@ -9,14 +9,12 @@ export class Account {
   @Column({ unique: true })
   accountNumber: string;
 
-  // Use 'decimal' for money to avoid math errors!
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   balance: number;
 
   @Column({ default: 'CURRENT' })
-  accountType: string; // 'CURRENT' or 'SAVINGS'
+  accountType: string;
 
-  // Link Account -> User
   @ManyToOne(() => User, (user) => user.accounts)
   user: User;
 }
